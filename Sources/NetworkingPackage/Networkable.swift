@@ -14,8 +14,8 @@ protocol Networkable {
     func sendRequest<T: Decodable>(endPoint: EndPoint, resultHandler: @escaping (Result <T, NetworkError>) -> Void)
 }
 
-final class NetworkService: Networkable {
-    static let shared = NetworkService()
+public final class NetworkService: Networkable {
+    public static let shared = NetworkService()
     
     private init() { }
     
