@@ -19,7 +19,7 @@ public final class NetworkService: Networkable {
     
     private init() { }
     
-    func sendRequest<T: Decodable>(endPoint endpoint: EndPoint, resultHandler: @escaping (Result<T, NetworkError>) -> Void) {
+    public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint, resultHandler: @escaping (Result<T, NetworkError>) -> Void) {
         
         guard let urlRequest = createRequest(endPoint: endpoint) else {
             return
@@ -47,7 +47,7 @@ public final class NetworkService: Networkable {
     }
     
     @available(iOS 13.0.0, *)
-    func sendRequest<T: Decodable>(endPoint endpoint: EndPoint) async throws -> T {
+    public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint) async throws -> T {
         guard let urlRequest = createRequest(endPoint: endpoint) else {
             throw NetworkError.decode
         }
