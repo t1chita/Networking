@@ -20,31 +20,47 @@ public final class NetworkService: Networkable {
     private init() { }
     
     public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint, resultHandler: @escaping (Result<T, NetworkError>) -> Void) {
-        
+
         guard let urlRequest = createRequest(endPoint: endpoint) else {
             return
         }
+
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-            guard error == nil else {
+            if let error = error {
+                print("Error: \(error.localizedDescription)") // Optional: Log the error message
                 resultHandler(.failure(.invalidURL))
                 return
             }
-            guard let response = response as? HTTPURLResponse, 202...299 ~= response.statusCode else {
-                resultHandler(.failure(.unexpectedStatusCode(statusCode: response.hashValue)))
+
+            guard let response = response as? HTTPURLResponse else {
+                resultHandler(.failure(.unknown)) // or another appropriate error if response is not HTTPURLResponse
                 return
             }
+
+            let statusCode = response.statusCode
+
+            guard 200...299 ~= statusCode else {
+                print("Received unexpected status code: \(statusCode)") // Optional: Log the status code
+                resultHandler(.failure(.unexpectedStatusCode(statusCode: statusCode)))
+                return
+            }
+
             guard let data = data else {
                 resultHandler(.failure(.unknown))
                 return
             }
-            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
+
+            do {
+                let decodedResponse = try JSONDecoder().decode(T.self, from: data)
+                resultHandler(.success(decodedResponse))
+            } catch {
+                print("Decoding error: \(error.localizedDescription)") // Optional: Log the decoding error
                 resultHandler(.failure(.decode))
-                return
             }
-            resultHandler(.success(decodedResponse))
         }
         urlTask.resume()
     }
+
     
     @available(iOS 13.0.0, *)
     public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint) async throws -> T {
