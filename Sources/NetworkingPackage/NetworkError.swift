@@ -13,7 +13,7 @@ public enum NetworkError: Error {
     case invalidURL
     case noResponse
     case unauthorized
-    case unexpectedStatusCode
+    case unexpectedStatusCode(statusCode: Int)
     case unknown
 
     public var customMessage: String {

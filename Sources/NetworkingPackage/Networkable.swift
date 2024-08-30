@@ -29,8 +29,8 @@ public final class NetworkService: Networkable {
                 resultHandler(.failure(.invalidURL))
                 return
             }
-            guard let response = response as? HTTPURLResponse, 200...299 ~= response.statusCode else {
-                resultHandler(.failure(.unexpectedStatusCode))
+            guard let response = response as? HTTPURLResponse, 202...299 ~= response.statusCode else {
+                resultHandler(.failure(.unexpectedStatusCode(statusCode: response.hashValue)))
                 return
             }
             guard let data = data else {
