@@ -60,7 +60,7 @@ public final class NetworkService: Networkable {
                     }
                     guard let response = response as? HTTPURLResponse, 200...299 ~= response.statusCode else {
                         continuation.resume(throwing:
-                                                NetworkError.unexpectedStatusCode)
+                                                NetworkError.unexpectedStatusCode(statusCode: response.hashValue))
                         return
                     }
                     guard let data = data else {
