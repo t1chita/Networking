@@ -36,4 +36,3 @@ public enum NetworkError: Error {
     }
 }
 
-struct EmptyResponse: Decodable { }

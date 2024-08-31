@@ -26,6 +26,13 @@ public final class NetworkService: Networkable {
         }
 
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let data = data {
+                print("Request URL: \(urlRequest.url)")
+                print("Response: \(response)")
+                print("Data: \(String(data: data, encoding: .utf8) ?? "No data")")
+            }
+
+            
             if let error = error {
                 print("Error: \(error.localizedDescription)")
                 resultHandler(.failure(.invalidURL))
@@ -44,20 +51,7 @@ public final class NetworkService: Networkable {
                 resultHandler(.failure(.unexpectedStatusCode(statusCode: statusCode)))
                 return
             }
-
-            // Handle empty response
-            if let data = data, data.isEmpty {
-                if T.self == EmptyResponse.self {
-                    resultHandler(.success(EmptyResponse() as! T))
-                    print("DEBUG: EmptyResponse Succ")
-                    return
-                } else {
-                    print("Decoding errorEmptyResponse: \(String(describing: error?.localizedDescription))")
-                    resultHandler(.failure(.decode))
-                    return
-                }
-            }
-
+            
             guard let data = data else {
                 resultHandler(.failure(.unknown))
                 return
