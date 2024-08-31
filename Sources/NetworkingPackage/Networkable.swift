@@ -49,8 +49,10 @@ public final class NetworkService: Networkable {
             if let data = data, data.isEmpty {
                 if T.self == EmptyResponse.self {
                     resultHandler(.success(EmptyResponse() as! T))
+                    print("DEBUG: EmptyResponse Succ")
                     return
                 } else {
+                    print("Decoding errorEmptyResponse: \(String(describing: error?.localizedDescription))")
                     resultHandler(.failure(.decode))
                     return
                 }
