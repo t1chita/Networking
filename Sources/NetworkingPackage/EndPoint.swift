@@ -13,7 +13,7 @@ public protocol EndPoint {
     var path: String { get }
     var method: RequestMethod { get }
     var header: [String: String]? { get }
-    var body: [String: String]? { get }
+    var body: [String: Any]? { get }
     var queryParams: [String: String]? { get } // Added for query parameters
     var pathParams: [String: String]? { get }  // Added for path parameters
 }
