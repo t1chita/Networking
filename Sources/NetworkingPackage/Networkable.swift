@@ -26,8 +26,6 @@ public final class NetworkService: Networkable {
         }
 
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-            print(data)
-            print(response)
             if let error = error {
                 print("Error: \(error.localizedDescription)")
                 resultHandler(.failure(.invalidURL))
@@ -51,17 +49,18 @@ public final class NetworkService: Networkable {
             if let data = data, data.isEmpty {
                 if T.self == EmptyResponse.self {
                     resultHandler(.success(EmptyResponse() as! T))
+                    return
                 } else {
                     resultHandler(.failure(.decode))
+                    return
                 }
-                return
             }
 
             guard let data = data else {
                 resultHandler(.failure(.unknown))
                 return
             }
-
+            
             do {
                 let decodedResponse = try JSONDecoder().decode(T.self, from: data)
                 resultHandler(.success(decodedResponse))
