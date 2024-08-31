@@ -27,21 +27,31 @@ public final class NetworkService: Networkable {
 
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             if let error = error {
-                print("Error: \(error.localizedDescription)") // Optional: Log the error message
+                print("Error: \(error.localizedDescription)")
                 resultHandler(.failure(.invalidURL))
                 return
             }
 
             guard let response = response as? HTTPURLResponse else {
-                resultHandler(.failure(.unknown)) // or another appropriate error if response is not HTTPURLResponse
+                resultHandler(.failure(.unknown))
                 return
             }
 
             let statusCode = response.statusCode
 
             guard 200...299 ~= statusCode else {
-                print("Received unexpected status code: \(statusCode)") // Optional: Log the status code
+                print("Received unexpected status code: \(statusCode)")
                 resultHandler(.failure(.unexpectedStatusCode(statusCode: statusCode)))
+                return
+            }
+
+            // Handle empty response
+            if let data = data, data.isEmpty {
+                if T.self == EmptyResponse.self {
+                    resultHandler(.success(EmptyResponse() as! T))
+                } else {
+                    resultHandler(.failure(.decode))
+                }
                 return
             }
 
@@ -54,12 +64,13 @@ public final class NetworkService: Networkable {
                 let decodedResponse = try JSONDecoder().decode(T.self, from: data)
                 resultHandler(.success(decodedResponse))
             } catch {
-                print("Decoding error: \(error.localizedDescription)") // Optional: Log the decoding error
+                print("Decoding error: \(error.localizedDescription)")
                 resultHandler(.failure(.decode))
             }
         }
         urlTask.resume()
     }
+
 
     
     @available(iOS 13.0.0, *)
