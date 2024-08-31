@@ -26,12 +26,6 @@ public final class NetworkService: Networkable {
         }
 
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-            if let data = data {
-                print("Request URL: \(urlRequest.url)")
-                print("Response: \(response)")
-                print("Data: \(String(data: data, encoding: .utf8) ?? "No data")")
-            }
-
             
             if let error = error {
                 print("Error: \(error.localizedDescription)")
@@ -99,6 +93,44 @@ public final class NetworkService: Networkable {
                 }
             task.resume()
         }
+    }
+    
+    public func sendRequestWithNoResponse(endPoint: EndPoint, completion: @escaping (Result<Void, NetworkError>) -> Void) {
+        guard let urlRequest = createRequest(endPoint: endPoint) else {
+            return
+        }
+
+        let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+                completion(.failure(.invalidURL))
+                return
+            }
+
+            guard let response = response as? HTTPURLResponse else {
+                completion(.failure(.unknown))
+                return
+            }
+
+            let statusCode = response.statusCode
+
+            guard 200...299 ~= statusCode else {
+                print("Received unexpected status code: \(statusCode)")
+                completion(.failure(.unexpectedStatusCode(statusCode: statusCode)))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(.unknown))
+                return
+            }
+            
+            if statusCode == 200 {
+                 completion(.success(()))
+            }
+        }
+        urlTask.resume()
     }
 }
 
