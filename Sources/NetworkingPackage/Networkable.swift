@@ -126,8 +126,9 @@ public final class NetworkService: Networkable {
                 return
             }
             
-            if statusCode == 200 {
+            if statusCode == 201 {
                  completion(.success(()))
+                return
             }
         }
         urlTask.resume()
