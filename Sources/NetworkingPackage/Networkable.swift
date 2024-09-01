@@ -150,16 +150,16 @@ extension Networkable {
             return nil
         }
         
+        
         let encoder = JSONEncoder()
         var request = URLRequest(url: url)
         request.httpMethod = endPoint.method.rawValue
         request.allHTTPHeaderFields = endPoint.header
-      
-        
         
         if let body = endPoint.body {
             request.httpBody = try? encoder.encode(body)
         }
+        
         return request
     }
 }
