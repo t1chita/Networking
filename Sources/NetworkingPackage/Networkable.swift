@@ -20,11 +20,11 @@ public final class NetworkService: Networkable {
     private init() { }
     
     public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint, resultHandler: @escaping (Result<T, NetworkError>) -> Void) {
-
+        
         guard let urlRequest = createRequest(endPoint: endpoint) else {
             return
         }
-
+        
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             
             if let error = error {
@@ -32,14 +32,14 @@ public final class NetworkService: Networkable {
                 resultHandler(.failure(.invalidURL))
                 return
             }
-
+            
             guard let response = response as? HTTPURLResponse else {
                 resultHandler(.failure(.unknown))
                 return
             }
-
+            
             let statusCode = response.statusCode
-
+            
             guard 200...299 ~= statusCode else {
                 print("Received unexpected status code: \(statusCode)")
                 resultHandler(.failure(.unexpectedStatusCode(statusCode: statusCode)))
@@ -61,8 +61,8 @@ public final class NetworkService: Networkable {
         }
         urlTask.resume()
     }
-
-
+    
+    
     
     @available(iOS 13.0.0, *)
     public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint) async throws -> T {
@@ -99,7 +99,7 @@ public final class NetworkService: Networkable {
         guard let urlRequest = createRequest(endPoint: endPoint) else {
             return
         }
-
+        
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             
             if let error = error {
@@ -107,14 +107,14 @@ public final class NetworkService: Networkable {
                 completion(.failure(.invalidURL))
                 return
             }
-
+            
             guard let response = response as? HTTPURLResponse else {
                 completion(.failure(.unknown))
                 return
             }
-
+            
             let statusCode = response.statusCode
-
+            
             guard 200...299 ~= statusCode else {
                 print("Received unexpected status code: \(statusCode)")
                 completion(.failure(.unexpectedStatusCode(statusCode: statusCode)))
@@ -127,7 +127,7 @@ public final class NetworkService: Networkable {
             }
             
             if statusCode == 201 {
-                 completion(.success(()))
+                completion(.success(()))
                 return
             }
         }
@@ -148,6 +148,12 @@ extension Networkable {
         var request = URLRequest(url: url)
         request.httpMethod = endPoint.method.rawValue
         request.allHTTPHeaderFields = endPoint.header
+        
+        if let queryParams = endPoint.queryParams {
+            urlComponents.queryItems = queryParams.map { URLQueryItem(name: $0.key, value: $0.value) }
+        }
+        
+        
         if let body = endPoint.body {
             request.httpBody = try? encoder.encode(body)
         }
