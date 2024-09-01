@@ -54,6 +54,18 @@ public final class NetworkService: Networkable {
             do {
                 let decodedResponse = try JSONDecoder().decode(T.self, from: data)
                 resultHandler(.success(decodedResponse))
+            } catch let DecodingError.dataCorrupted(context) {
+                print("Data corrupted: \(context.debugDescription)")
+                resultHandler(.failure(.decode))
+            } catch let DecodingError.keyNotFound(key, context) {
+                print("Key '\(key)' not found: \(context.debugDescription)")
+                resultHandler(.failure(.decode))
+            } catch let DecodingError.typeMismatch(type, context) {
+                print("Type '\(type)' mismatch: \(context.debugDescription)")
+                resultHandler(.failure(.decode))
+            } catch let DecodingError.valueNotFound(value, context) {
+                print("Value '\(value)' not found: \(context.debugDescription)")
+                resultHandler(.failure(.decode))
             } catch {
                 print("Decoding error: \(error.localizedDescription)")
                 resultHandler(.failure(.decode))
