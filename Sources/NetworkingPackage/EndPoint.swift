@@ -36,7 +36,7 @@ extension Encodable {
 public struct AnyEncodable : Encodable {
     var value: Encodable
     
-    init(_ value: Encodable) {
+    public init(_ value: Encodable) {
         self.value = value
     }
     
