@@ -1,6 +1,6 @@
 //
 //  EndPoint.swift
-//  
+//
 //
 //  Created by Temur Chitashvili on 29.08.24.
 //
@@ -13,7 +13,7 @@ public protocol EndPoint {
     var path: String { get }
     var method: RequestMethod { get }
     var header: [String: String]? { get }
-    var body: [String: Any]? { get }
+    var body: [String: AnyEncodable]? { get }
     var queryParams: [String: String]? { get } // Added for query parameters
     var pathParams: [String: String]? { get }  // Added for path parameters
 }
@@ -26,3 +26,25 @@ extension EndPoint {
         return ""
     }
 }
+
+extension Encodable {
+    fileprivate func encode(to container: inout SingleValueEncodingContainer) throws {
+        try container.encode(self)
+    }
+}
+
+public struct AnyEncodable : Encodable {
+    var value: Encodable
+    
+    init(_ value: Encodable) {
+        self.value = value
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try value.encode(to: &container)
+    }
+}
+
+
+
