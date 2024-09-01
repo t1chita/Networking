@@ -27,6 +27,9 @@ public final class NetworkService: Networkable {
         
         let urlTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             
+            print("DATA: \(data)")
+            print("response: \(response)")
+            
             if let error = error {
                 print("Error: \(error.localizedDescription)")
                 resultHandler(.failure(.invalidURL))
