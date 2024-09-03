@@ -74,8 +74,6 @@ public final class NetworkService: Networkable {
         urlTask.resume()
     }
     
-    
-    
     @available(iOS 13.0.0, *)
     public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint) async throws -> T {
         guard let urlRequest = createRequest(endPoint: endpoint) else {
@@ -169,12 +167,20 @@ extension Networkable {
         request.allHTTPHeaderFields = endPoint.header
         
         if let body = endPoint.body {
-            request.httpBody = try? encoder.encode(body)
+            do {
+                let encodedBody = try encoder.encode(body)
+                request.httpBody = encodedBody
+                
+                // Convert the encoded body to a JSON string for printing
+                if let jsonString = String(data: encodedBody, encoding: .utf8) {
+                    print("Request Body as JSON: \(jsonString)")
+                }
+            } catch {
+                print("Failed to encode body: \(error.localizedDescription)")
+            }
         }
         
-        print(endPoint.queryParams)
-        print(endPoint.body)
-        
+        print(endPoint.queryParams)        
         
         return request
     }
