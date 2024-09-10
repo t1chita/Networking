@@ -6,11 +6,8 @@
 //
 
 import Foundation
-import Combine
 
 protocol Networkable {
-    @available(iOS 13.0.0, *)
-    func sendRequest<T: Decodable>(endPoint: EndPoint) async throws -> T
     func sendRequest<T: Decodable>(endPoint: EndPoint, resultHandler: @escaping (Result <T, NetworkError>) -> Void)
 }
 
@@ -32,6 +29,7 @@ public final class NetworkService: Networkable {
                 resultHandler(.failure(.invalidURL))
                 return
             }
+
             
             guard let response = response as? HTTPURLResponse else {
                 resultHandler(.failure(.unknown))
@@ -73,38 +71,7 @@ public final class NetworkService: Networkable {
         }
         urlTask.resume()
     }
-    
-    @available(iOS 13.0.0, *)
-    public func sendRequest<T: Decodable>(endPoint endpoint: EndPoint) async throws -> T {
-        guard let urlRequest = createRequest(endPoint: endpoint) else {
-            throw NetworkError.decode
-        }
-        return try await withCheckedThrowingContinuation { continuation in
-            let task = URLSession(configuration: .default, delegate: nil, delegateQueue: .main)
-                .dataTask(with: urlRequest) { data, response, _ in
-                    guard response is HTTPURLResponse else {
-                        continuation.resume(throwing: NetworkError.invalidURL)
-                        return
-                    }
-                    guard let response = response as? HTTPURLResponse, 200...299 ~= response.statusCode else {
-                        continuation.resume(throwing:
-                                                NetworkError.unexpectedStatusCode(statusCode: response.hashValue))
-                        return
-                    }
-                    guard let data = data else {
-                        continuation.resume(throwing: NetworkError.unknown)
-                        return
-                    }
-                    guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
-                        continuation.resume(throwing: NetworkError.decode)
-                        return
-                    }
-                    continuation.resume(returning: decodedResponse)
-                }
-            task.resume()
-        }
-    }
-    
+        
     public func sendRequestWithNoResponse(endPoint: EndPoint, completion: @escaping (Result<Void, NetworkError>) -> Void) {
         guard let urlRequest = createRequest(endPoint: endPoint) else {
             return
@@ -179,8 +146,6 @@ extension Networkable {
                 print("Failed to encode body: \(error.localizedDescription)")
             }
         }
-        
-        print(endPoint.queryParams)        
         
         return request
     }
