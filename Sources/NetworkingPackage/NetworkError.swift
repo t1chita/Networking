@@ -15,6 +15,7 @@ public enum NetworkError: Error {
     case unauthorized
     case unexpectedStatusCode(statusCode: Int)
     case unknown
+    case custom(String) // New case for custom error messages
 
     public var customMessage: String {
         switch self {

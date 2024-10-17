@@ -14,7 +14,7 @@ public protocol EndPoint {
     var method: RequestMethod { get }
     var header: [String: String]? { get }
     var body: [String: AnyEncodable]? { get }
-    var queryParams: [String: String]? { get } // Added for query parameters
+    var queryParams: [String: AnyEncodable]? { get } // Added for query parameters
     var pathParams: [String: String]? { get }  // Added for path parameters
 }
 
