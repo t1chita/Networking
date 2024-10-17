@@ -120,7 +120,15 @@ extension Networkable {
         urlComponents.path = endPoint.path
         
         if let queryParams = endPoint.queryParams {
-            urlComponents.queryItems = queryParams.map { URLQueryItem(name: $0.key, value: $0.value) }
+            urlComponents.queryItems = queryParams.compactMap { key, value in
+                if let stringValue = value as? String {
+                    return URLQueryItem(name: key, value: stringValue)
+                } else if let encodableValue = value as? AnyEncodable {
+                    // Attempt to encode the value to a string
+                    return URLQueryItem(name: key, value: String(describing: encodableValue.value))
+                }
+                return nil
+            }
         }
         
         guard let url = urlComponents.url else {
