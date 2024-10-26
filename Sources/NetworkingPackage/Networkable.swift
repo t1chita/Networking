@@ -103,7 +103,7 @@ public final class NetworkService: Networkable {
                 return
             }
             
-            if statusCode == 201 {
+            if statusCode == 200 {
                 completion(.success(()))
                 return
             }
